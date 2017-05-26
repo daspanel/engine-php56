@@ -1,0 +1,22 @@
+
+version: '2'
+services:
+    daspanel-engine-php56:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: daspanel/engine-php56
+        volumes:
+            - ./data:/opt/daspanel/data
+        networks:
+            - frontend
+            - backend
+        env_file:
+            - daspanel.env
+networks:  
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+

@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+exec /usr/bin/php-fpm5 --nodaemonize --force-stderr --fpm-config /etc/php5/php-fpm.conf --pid /var/run/php-fpm5.pid
+
