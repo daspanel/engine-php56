@@ -20,6 +20,7 @@
         X-XSS-Protection       "1; mode=block"
         Referrer-Policy        no-referrer-when-downgrade
         Strict-Transport-Security "max-age=31536000; includeSubdomains; preload"
+        -X-Powered-By
     }
 }
 
