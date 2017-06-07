@@ -3,16 +3,17 @@
 {{ (getenv "SITECFG" | json).name }}:443 {
     errors stdout
     log / stdout "[DASPANEL-HTTP-ACCESSLOG] {>Referer} {remote} {when} {method} {uri} {proto} {status} {size} {>User-Agent} {latency} {request}" 
-    root /opt/daspanel/data/{{ getenv "DASPANEL_SYS_UUID" }}/{{ (getenv "SITECFG" | json).dir }}
+    root /opt/daspanel/data/{{ getenv "DASPANEL_SYS_UUID" }}/{{ (getenv "SITECFG" | json).dir }}/app/webroot
     gzip
     tls self_signed
-    ratelimit /wp-login.php 5 7 minute
-    # Protect secrets against misconfiguration.
-    #internal /wp-config.php
     fastcgi / localhost:9000 php
+
+    # Begin - Security
+    ## End - Security
+
+    # global rewrite should come last.
     rewrite {
-        if {path} not_match ^\/wp-admin
-        to {path} {path}/ /index.php?_url={uri}
+        to {path} {path}/ /index.php?{path}&{query}
     }
     header / {
         X-Frame-Options        SAMEORIGIN
@@ -22,4 +23,3 @@
         Strict-Transport-Security "max-age=31536000; includeSubdomains; preload"
     }
 }
-
