@@ -7,14 +7,14 @@ rm /etc/caddy/sites-enabled/*
 rm /etc/caddy/sites-available/*
 
 # Generate new configs
-echo $content | jq -rc '.[]' | while IFS='' read site;do
-    siteuuid=$(echo "$site" | jq -r ._cuid)
-    siteenabled=$(echo "$site" | jq -r .enabled)
-    configs=$(echo $site | jq -r .configs )
-    echo $configs | jq -rc '.[]' | while IFS='' read sitecfg;do
-        siteengine=$(echo "$sitecfg" | jq -r .engine)
+echo $content | /opt/daspanel/bin/jq -rc '.[]' | while IFS='' read site;do
+    siteuuid=$(echo "$site" | /opt/daspanel/bin/jq -r ._cuid)
+    siteenabled=$(echo "$site" | /opt/daspanel/bin/jq -r .enabled)
+    configs=$(echo $site | /opt/daspanel/bin/jq -r .configs )
+    echo $configs | /opt/daspanel/bin/jq -rc '.[]' | while IFS='' read sitecfg;do
+        siteengine=$(echo "$sitecfg" | /opt/daspanel/bin/jq -r .engine)
         if [ "$siteengine" == "$ENGINE" ]; then
-            sitetype=$(echo "$sitecfg" | jq -r .sitetype)
+            sitetype=$(echo "$sitecfg" | /opt/daspanel/bin/jq -r .sitetype)
             template=""
             template1="/opt/daspanel/data/$DASPANEL_SYS_UUID/conf-templates/engine-$ENGINE/caddy/$sitetype-$siteengine.template"
             template2="/opt/daspanel/conf-templates/engine-$ENGINE/caddy/$sitetype-$siteengine.template"
@@ -32,7 +32,7 @@ echo $content | jq -rc '.[]' | while IFS='' read site;do
                 export SITEINFO=$site
                 export SITECFG=$sitecfg
                 echo "[DASPANEL-ENGINE] INFO Processing site $siteuuid template: $template"
-                /usr/bin/gomplate \
+                /opt/daspanel/bin/gomplate \
                     < $template \
                     >> /etc/caddy/sites-available/$siteuuid.conf
             fi

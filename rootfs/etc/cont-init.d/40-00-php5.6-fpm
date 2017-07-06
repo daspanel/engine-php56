@@ -1,25 +1,27 @@
 #!/usr/bin/with-contenv sh
 
+# Set the type of this container
+export DASPANEL_CONTAINER_TYPE="engine-php56"
+printf $DASPANEL_CONTAINER_TYPE > /var/run/s6/container_environment/DASPANEL_CONTAINER_TYPE
+
 # Installation UUID must be informed
 if [ -z "$DASPANEL_SYS_UUID" ]; then
-    echo "***"
-    echo "ERROR: You must set the env variable DASPANEL_SYS_UUID to a valid UUID"
-    echo "***"
+    echo "[DASPANEL-$DASPANEL_CONTAINER_TYPE] ERROR: You must set the env variable DASPANEL_SYS_UUID to a valid UUID"
     exit 1
 fi
 
 case "$DASPANEL_WAIT_FOR_API" in
     YES|yes|Yes)
-        echo "[DASPANEL] Waiting 60 seconds for API: $0" >&2
+        echo "[DASPANEL-$DASPANEL_CONTAINER_TYPE] Waiting 60 seconds for API: $0" >&2
         /opt/daspanel/bin/wait-for-api -t 60 $DASPANEL_SYS_APISERVER/info/status
         result=$?
         if [ ! $result -eq 0 ] ; then
-            echo "[DASPANEL] Can not connect to API: $DASPANEL_SYS_APISERVER/info/status" >&2
+            echo "[DASPANEL-$DASPANEL_CONTAINER_TYPE] Can not connect to API: $DASPANEL_SYS_APISERVER/info/status" >&2
             exit 1
         fi
         ;;
     *) 
-        echo "[DASPANEL] Container not need to wait API become online: $0" >&2
+        echo "[DASPANEL-$DASPANEL_CONTAINER_TYPE] Container not need to wait API become online: $0" >&2
         exit 1
         ;;
 esac
@@ -66,18 +68,18 @@ fi
 export PHP_CHDIR="/opt/daspanel/data/$DASPANEL_SYS_UUID/content"
 export PHP_SESSION_PATH="/opt/daspanel/data/$DASPANEL_SYS_UUID/sessions"
 
-/usr/bin/gomplate -d cfg=$DASPANEL_SYS_APISERVER/tenants/$DASPANEL_SYS_UUID \
+/opt/daspanel/bin/gomplate -d cfg=$DASPANEL_SYS_APISERVER/tenants/$DASPANEL_SYS_UUID \
     -H "cfg=Authorization: $DASPANEL_SYS_APIKEY" \
     < /opt/daspanel/conf-templates/engine-php56/php5/php.ini.tmpl \
     > /etc/php5/php.ini
 
-/usr/bin/gomplate -d cfg=$DASPANEL_SYS_APISERVER/tenants/$DASPANEL_SYS_UUID \
+/opt/daspanel/bin/gomplate -d cfg=$DASPANEL_SYS_APISERVER/tenants/$DASPANEL_SYS_UUID \
     -H "cfg=Authorization: $DASPANEL_SYS_APIKEY" \
     < /opt/daspanel/conf-templates/engine-php56/php5/php-fpm.conf.tmpl \
     > /etc/php5/php-fpm.conf
 
 # Default php daemon for sites
-/usr/bin/gomplate -d cfg=$DASPANEL_SYS_APISERVER/tenants/$DASPANEL_SYS_UUID \
+/opt/daspanel/bin/gomplate -d cfg=$DASPANEL_SYS_APISERVER/tenants/$DASPANEL_SYS_UUID \
     -H "cfg=Authorization: $DASPANEL_SYS_APIKEY" \
     < /opt/daspanel/conf-templates/engine-php56/php5/php-fpm.d/daspanel.conf.tmpl \
     > /etc/php5/php-fpm.d/daspanel.conf
