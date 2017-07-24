@@ -14,7 +14,7 @@ ARG DASPANEL_IMG_NAME=engine-php56
 ARG DASPANEL_OS_VERSION=alpine3.6
 
 # Parse Container specific arguments for the build command.
-ARG CADDY_PLUGINS="http.cors,http.expires,http.filemanager"
+ARG CADDY_PLUGINS="http.cors,http.expires,http.filemanager,http.ratelimit,http.realip"
 ARG CADDY_URL="https://caddyserver.com/download/linux/amd64?plugins=${CADDY_PLUGINS}"
 
 # PHP minimal modules to install - run's Worpress, Grav and others
