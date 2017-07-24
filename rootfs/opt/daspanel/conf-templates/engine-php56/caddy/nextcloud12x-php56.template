@@ -31,6 +31,12 @@
 		to /remote.php/{1}/{2}
 	}
 
+    # allow public sharing by link    
+	rewrite {
+		r ^/public.php/(.+?)(\/?)$
+		to /public.php/(.+?)(\/?)$
+	}
+
 	# .htaccess / data / config / ... shouldn't be accessible from outside
 	status 403 {
 		/.htacces
