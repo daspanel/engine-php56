@@ -12,7 +12,7 @@
     fastcgi / localhost:9000 php
     rewrite {
         if {path} not_match ^\/wp-admin
-        to {path} {path}/ /index.php?_url={uri}
+        to {path} {path}/ /index.php?{query}
     }
     header / {
         X-Frame-Options        SAMEORIGIN
