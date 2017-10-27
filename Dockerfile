@@ -1,8 +1,25 @@
-FROM alpine:3.6
+FROM golang:1.9-alpine as builder-caddy
+LABEL maintainer="ulrich.schreiner@gmail.com"
+
+ENV CADDY_VERSION v0.10.10
+
+# Inject files in container file system
+COPY caddy-build /caddy-build
+
+RUN apk --no-cache update \
+    && apk --no-cache --update add git bash \
+    && cd /caddy-build \
+    && env OS=linux ARCH=amd64 ./build_caddy.sh \
+    && ls -la /caddy-build/caddy
+
+FROM daspanel/engine-base-dev:dev
 MAINTAINER Abner G Jacobsen - http://daspanel.com <admin@daspanel.com>
 
 # Thanks:
 #   https://github.com/openbridge/ob_php-fpm
+
+# Copy bynaries build before
+COPY --from=builder-caddy /caddy-build/caddy /usr/sbin/caddy
 
 # Parse Daspanel common arguments for the build command.
 ARG VERSION
@@ -14,8 +31,7 @@ ARG DASPANEL_IMG_NAME=engine-php56
 ARG DASPANEL_OS_VERSION=alpine3.6
 
 # Parse Container specific arguments for the build command.
-ARG CADDY_PLUGINS="http.cors,http.expires,http.filemanager,http.ratelimit,http.realip"
-ARG CADDY_URL="https://caddyserver.com/download/linux/amd64?plugins=${CADDY_PLUGINS}"
+ARG GOTTY_URL="https://github.com/yudai/gotty/releases/download/pre-release/gotty_2.0.0-alpha.2_linux_amd64.tar.gz"
 
 # PHP minimal modules to install - run's Worpress, Grav and others
 ARG PHP_MINIMAL="php5-fpm php5 php5-cli php5-common php5-pear php5-phar php5-posix \
@@ -67,7 +83,7 @@ LABEL org.label-schema.schema-version="1.0" \
       org.label-schema.name="daspanel/engine-php56" \
       org.label-schema.description="This service provides HTTP php 5.6 engine server to Daspanel sites."
 
-
+ENV TERM=xterm-256color
 ENV VAR_PREFIX=/var/run
 ENV LOG_PREFIX=/var/log/php-fpm5
 ENV TEMP_PREFIX=/tmp
@@ -100,12 +116,18 @@ RUN set -x \
     && addgroup -g 82 -S www-data \
     && adduser -u 82 -D -S -h /home/www-data -s /sbin/nologin -G www-data www-data \
 
+    # Install specific OS packages needed by this image
+    && sh /opt/daspanel/bootstrap/${DASPANEL_OS_VERSION}/99_install_pkgs "git" \
+
     # Install PHP and modules avaiable on the default repositories of this Linux distro
     && sh /opt/daspanel/bootstrap/${DASPANEL_OS_VERSION}/99_install_pkgs "${PHP_MINIMAL}" \
     && sh /opt/daspanel/bootstrap/${DASPANEL_OS_VERSION}/99_install_pkgs "${PHP_MODULES}" \
     && sh /opt/daspanel/bootstrap/${DASPANEL_OS_VERSION}/99_install_pkgs "${PHP_MODULES_EXTRA}" \
     && sh /opt/daspanel/bootstrap/${DASPANEL_OS_VERSION}/99_install_pkgs "${PHP_PHPDBG}" \
     && sh /opt/daspanel/bootstrap/${DASPANEL_OS_VERSION}/99_install_pkgs "${PHP_XDEBUG}" \
+
+    # In Alpine 3.6 PHP 5.6 install don't create /usr/bin/php
+    && ln -sf /usr/bin/php5 /usr/bin/php \
 
     # Install PHP Composer
     && curl -sS https://getcomposer.org/installer | php5 -- --install-dir=/usr/local/bin --filename=composer \
@@ -125,11 +147,16 @@ RUN set -x \
     # Cleanup after phpizing
     #&& rm -rf /usr/include/php5 /usr/lib/php5/build \
 
-    # Install Caddy
+    # Install gotty
     && curl --silent --show-error --fail --location \
-        --header "Accept: application/tar+gzip, application/x-gzip, application/octet-stream" -o - \
-        "${CADDY_URL}" \
-        | tar --no-same-owner -C /usr/sbin/ -xz caddy \
+        --header "Accept: application/tar+gzip, application/x-gzip, application/octet-stream" -o /tmp/gotty.tar.gz \
+        "${GOTTY_URL}" \
+    && tar -C /usr/sbin -xvzf /tmp/gotty.tar.gz \
+    && chmod 0755 /usr/sbin/gotty \
+    && mkdir /lib64 \
+    && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2 \
+
+    # Install Caddy
     && chmod 0755 /usr/sbin/caddy \
     && setcap "cap_net_bind_service=+ep" /usr/sbin/caddy \
 
