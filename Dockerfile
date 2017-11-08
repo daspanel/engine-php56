@@ -1,4 +1,4 @@
-FROM golang:1.9-alpine as builder-caddy
+FROM golang:1.9-alpine3.6 as builder-caddy
 LABEL maintainer="ulrich.schreiner@gmail.com"
 
 ENV CADDY_VERSION v0.10.10
@@ -148,13 +148,14 @@ RUN set -x \
     #&& rm -rf /usr/include/php5 /usr/lib/php5/build \
 
     # Install gotty
-    && curl --silent --show-error --fail --location \
+    && curl --progress-bar --show-error --fail --location \
         --header "Accept: application/tar+gzip, application/x-gzip, application/octet-stream" -o /tmp/gotty.tar.gz \
         "${GOTTY_URL}" \
     && tar -C /usr/sbin -xvzf /tmp/gotty.tar.gz \
     && chmod 0755 /usr/sbin/gotty \
     && mkdir /lib64 \
     && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2 \
+    && rm /tmp/gotty.tar.gz \
 
     # Install Caddy
     && chmod 0755 /usr/sbin/caddy \

@@ -64,8 +64,13 @@ _ds.{{ (getenv "SITECFG" | json).name }}:443 {
         websocket
         insecure_skip_verify
     }
-    proxy /hooks 127.0.0.1:33000 {
-        policy least_conn
+    proxy /port/3000 127.0.0.1:3000 {
+        without /port/3000
+        transparent
+        insecure_skip_verify
+    }
+    proxy /port/8080 127.0.0.1:8080 {
+        without /port/8080
         transparent
         insecure_skip_verify
     }
