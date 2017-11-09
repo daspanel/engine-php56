@@ -17,7 +17,7 @@ if [ -z "$1" ]; then
 fi
 if [ -z "$2" ]; then
     echo "***"
-    echo "ERROR: You must inform the site version"
+    echo "ERROR: You must inform the site dir"
     echo "***"
     exit 0
 fi
@@ -27,16 +27,16 @@ export HOME=/home/daspanel
 
 # Get parameters
 SITE="$1"
-VERSION="$2"
+SITE_DIR="$2"
 
 # Check if dir exists
-if [ ! -d "/opt/daspanel/data/$DASPANEL_SYS_UUID/content/$SITE/v/$VERSION" ]; then
+if [ ! -d "/opt/daspanel/data/$DASPANEL_SYS_UUID/$SITE_DIR" ]; then
     echo "***"
     echo "ERROR: Incorrect parametrs. Inexistent site and/or version"
     echo "***"
     exit 0
 fi
 
-cd /opt/daspanel/data/$DASPANEL_SYS_UUID/content/$SITE/v/$VERSION
+cd /opt/daspanel/data/$DASPANEL_SYS_UUID/$SITE_DIR
 
 exec /bin/sh
