@@ -3,7 +3,7 @@
 {{ (getenv "SITECFG" | json).name }}:443 {
     errors stdout
     log / stdout "[DASPANEL-HTTP-ACCESSLOG] {>Referer} {remote} {when} {method} {uri} {proto} {status} {size} {>User-Agent} {latency} {request}" 
-    root /opt/daspanel/data/{{ getenv "DASPANEL_SYS_UUID" }}/{{ (getenv "SITECFG" | json).dir }}
+    root /opt/daspanel/data/{{ getenv "DASPANEL_SYS_UUID" }}/{{ (getenv "SITECFG" | json).dir }}{{ (getenv "SITECFG" | json).root_dir }}
     gzip
     tls self_signed
     cors
@@ -21,7 +21,7 @@
 _ds.{{ (getenv "SITECFG" | json).name }}:443 {
     errors stdout
     log / stdout "[DASPANEL-HTTP-ACCESSLOG] {>Referer} {remote} {when} {method} {uri} {proto} {status} {size} {>User-Agent} {latency} {request}" 
-    root /opt/daspanel/data/{{ getenv "DASPANEL_SYS_UUID" }}/{{ (getenv "SITECFG" | json).dir }}/public
+    root /opt/daspanel/data/{{ getenv "DASPANEL_SYS_UUID" }}/{{ (getenv "SITECFG" | json).dir }}{{ (getenv "SITECFG" | json).root_dir }}
     gzip
     tls self_signed
     cors
