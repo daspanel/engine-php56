@@ -1,8 +1,23 @@
 # Changelog - admindaspanel / engine-php56
 
+### 0.10.0
+__Changes__
+
+- bumped to version 0.10.0
+- Changed the way the root directory is configured.
+
+__Contributors__
+
+- Abner G Jacobsen
+
+Released by Abner G Jacobsen, Wed 22 Nov 2017 -
+[see the diff](https://github.com/admindaspanel/engine-php56/compare/0.9.0...0.10.0#diff)
+______________
+
 ### 0.9.0
 __Changes__
 
+- See changes in CHANGELOG.md
 - bumped to version 0.9.0
 - Fix parameters received. The second must be the dir of the site.
 
