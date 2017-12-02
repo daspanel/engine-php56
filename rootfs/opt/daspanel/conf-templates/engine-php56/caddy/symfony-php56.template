@@ -27,6 +27,14 @@ _ds.{{ (getenv "SITECFG" | json).name }}:443 {
     gzip
     tls self_signed
     cors
+    rewrite {
+        if {>Referer} has _ds.{{ (getenv "SITECFG" | json).name }}/port/8080
+        to /port/8080/{path}
+    }
+    rewrite {
+        if {>Referer} has _ds.{{ (getenv "SITECFG" | json).name }}/port/3000
+        to /port/3000/{path}
+    }
     proxy /shell http://127.0.0.1:7681 {
         without /shell
         websocket
@@ -39,6 +47,46 @@ _ds.{{ (getenv "SITECFG" | json).name }}:443 {
     }
     proxy /port/8080 127.0.0.1:8080 {
         without /port/8080
+        transparent
+        insecure_skip_verify
+    }
+    header / {
+        X-Frame-Options        SAMEORIGIN
+        X-Content-Type-Options nosniff
+        X-XSS-Protection       "1; mode=block"
+        Referrer-Policy        no-referrer-when-downgrade
+        Strict-Transport-Security "max-age=31536000; includeSubdomains; preload"
+        -X-Powered-By
+    }
+}
+_ds.{{ (getenv "SITECFG" | json).name }}:18080 {
+    errors stdout
+    log / stdout "[DASPANEL-HTTP-ACCESSLOG] {>Referer} {remote} {when} {method} {uri} {proto} {status} {size} {>User-Agent} {latency} {request}" 
+    root /opt/daspanel/data/{{ getenv "DASPANEL_SYS_UUID" }}/{{ (getenv "SITECFG" | json).dir }}{{ (getenv "SITECFG" | json).root_dir }}
+    gzip
+    tls self_signed
+    cors
+    proxy / 127.0.0.1:8080 {
+        transparent
+        insecure_skip_verify
+    }
+    header / {
+        X-Frame-Options        SAMEORIGIN
+        X-Content-Type-Options nosniff
+        X-XSS-Protection       "1; mode=block"
+        Referrer-Policy        no-referrer-when-downgrade
+        Strict-Transport-Security "max-age=31536000; includeSubdomains; preload"
+        -X-Powered-By
+    }
+}
+_ds.{{ (getenv "SITECFG" | json).name }}:13000 {
+    errors stdout
+    log / stdout "[DASPANEL-HTTP-ACCESSLOG] {>Referer} {remote} {when} {method} {uri} {proto} {status} {size} {>User-Agent} {latency} {request}" 
+    root /opt/daspanel/data/{{ getenv "DASPANEL_SYS_UUID" }}/{{ (getenv "SITECFG" | json).dir }}{{ (getenv "SITECFG" | json).root_dir }}
+    gzip
+    tls self_signed
+    cors
+    proxy / 127.0.0.1:3000 {
         transparent
         insecure_skip_verify
     }
