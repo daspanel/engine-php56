@@ -32,8 +32,8 @@ if [ ! $result -eq 0 ] ; then
     exit 1
 fi
 export DASPANEL_SYS_HOSTNAME=`echo $SYSCFG | /opt/daspanel/bin/jq -r '.sys.hostname'`
-export CONSOLE_ADMIN=`echo $SYSCFG | /opt/daspanel/bin/jq -r '.sys.admin'`
-export CONSOLE_PWD=`echo $SYSCFG | /opt/daspanel/bin/jq -r '.sys.password'`
+export CONSOLE_ADMIN=`echo $SYSCFG | /opt/daspanel/bin/jq -r '.console.user'`
+export CONSOLE_PWD=`echo $SYSCFG | /opt/daspanel/bin/jq -r '.console.password'`
 export ENGINE="php56"
 
 cd /opt/daspanel/data/$DASPANEL_SYS_UUID/content
