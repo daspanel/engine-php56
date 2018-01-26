@@ -1,8 +1,23 @@
 # Changelog - admindaspanel / engine-php56
 
+### 0.13.0
+__Changes__
+
+- bumped to version 0.13.0
+- Added wp-cli as /usr/local/bin/wp
+
+__Contributors__
+
+- Abner G Jacobsen
+
+Released by Abner G Jacobsen, Fri 26 Jan 2018 -
+[see the diff](https://github.com/admindaspanel/engine-php56/compare/0.12.2...0.13.0#diff)
+______________
+
 ### 0.12.2
 __Changes__
 
+- See changes in CHANGELOG.md
 - bumped to version 0.12.2
 - Updated Gotty version.
 
